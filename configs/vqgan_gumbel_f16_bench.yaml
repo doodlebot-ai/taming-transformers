@@ -1,19 +1,11 @@
 model:
   base_learning_rate: 4.5e-06
-  target: taming.models.vqgan.GumbelVQ
+  target: taming.models.vqgan.VQModel
   params:
     kl_weight: 1.0e-08
     embed_dim: 256
     n_embed: 65536
     monitor: val/rec_loss
-    temperature_scheduler_config:
-      target: taming.lr_scheduler.LambdaWarmUpCosineScheduler
-      params:
-        warm_up_steps: 0
-        max_decay_steps: 1000001
-        lr_start: 0.9
-        lr_max: 0.9
-        lr_min: 1.0e-06
     ddconfig:
       double_z: false
       z_channels: 256
@@ -25,32 +17,34 @@ model:
       num_res_blocks: 2
       attn_resolutions: [16]
       dropout: 0.05
+
     lossconfig:
       target: taming.modules.losses.vqperceptual.VQLPIPSWithDiscriminator
       params:
-        disc_conditional: false
+        disc_conditional: False
         disc_in_channels: 3
-        disc_start: 0
-        disc_weight: 0.75
-        disc_num_layers: 2
+        disc_start: 250001
+        disc_weight: 0.8
         codebook_weight: 1.0
-
 
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 5
+    batch_size: 12
     num_workers: 16
     train:
-      target: taming.data.custom.CustomTrain
+      target: taming.data.imagenet.ImageNetTrain
       params:
-        training_images_list_file: train.txt
-        size: 256
+        config:
+          size: 256
+    validation:
+      target: taming.data.imagenet.ImageNetValidation
+      params:
+        config:
+          size: 256
 
 lightning:
   trainer:
     precision: 16
     benchmark: True
-    max_time:
-      hours: 1
 
