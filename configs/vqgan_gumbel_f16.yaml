@@ -2,7 +2,7 @@ model:
   base_learning_rate: 4.5e-06
   target: taming.models.vqgan.GumbelVQ
   params:
-    kl_weight: 1.0e-08
+    kl_weight: 1.0
     embed_dim: 256
     n_embed: 65536
     monitor: val/rec_loss
@@ -30,7 +30,7 @@ model:
       params:
         disc_conditional: false
         disc_in_channels: 3
-        disc_start: 0
+        disc_start: 250000
         disc_weight: 0.75
         disc_num_layers: 2
         codebook_weight: 1.0
@@ -54,9 +54,5 @@ data:
 
 lightning:
   trainer:
-    precision: 16
     benchmark: True
-    limit_train_batches: 0.25
-    # max_time:
-    #   days: 1
-
+    limit_train_batches: 1.0
